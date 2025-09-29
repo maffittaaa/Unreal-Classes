@@ -1,5 +1,6 @@
 #include "CoinActor.h"
 #include "EmergentTechnologiesCharacter.h"
+#include "MyGameStateBase.h"
 #include "GameFramework/Character.h"
 #include "Kismet/GameplayStatics.h"
 
@@ -52,6 +53,9 @@ void ACoinActor::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* Oth
 				projectCharacter->CollectCoin();
 				PlayEffects();
 				Destroy();
+				AMyGameStateBase* myGameStateBase = Cast<AMyGameStateBase>(GetWorld()->GetGameState());
+				if (myGameStateBase != nullptr)
+					myGameStateBase->UpdateTotalCoinsInLevel();
 			}
 		}
 	}

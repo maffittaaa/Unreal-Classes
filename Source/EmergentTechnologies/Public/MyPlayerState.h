@@ -15,8 +15,6 @@ class EMERGENTTECHNOLOGIES_API AMyPlayerState : public APlayerState
 		void AddCoin();
 	
 	private:
-		UPROPERTY()
+		UPROPERTY(Replicated, VisibleAnywhere, Category = "Coins")
 		int collectedCoins;
-	
-
 };
