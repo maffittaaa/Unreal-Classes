@@ -25,9 +25,10 @@ class EMERGENTTECHNOLOGIES_API ACoinActor : public AActor
 	
 		
 	protected:
+		virtual void BeginPlay() override;
+	
 		UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components");
 		USphereComponent* collisionSphere; //point to an object
-		virtual void BeginPlay() override;
 
 		UPROPERTY(EditDefaultsOnly, Category = "Effects")
 		UParticleSystem* collectEffects;

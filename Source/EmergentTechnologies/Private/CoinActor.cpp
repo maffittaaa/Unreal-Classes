@@ -1,13 +1,8 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
 #include "CoinActor.h"
-
 #include "EmergentTechnologiesCharacter.h"
-#include "SAdvancedRotationInputBox.h"
 #include "GameFramework/Character.h"
 #include "Kismet/GameplayStatics.h"
 
-// Sets default values
 ACoinActor::ACoinActor()
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
@@ -19,7 +14,7 @@ ACoinActor::ACoinActor()
 	collisionSphere = CreateDefaultSubobject<USphereComponent>("Sphere"); //all available in the blueprint
 	collisionSphere->SetupAttachment(RootComponent); //always accessible in the actor class
 	collisionSphere->SetSphereRadius(100.0f); //default value
-	collisionSphere->SetCollisionEnabled(ECollisionEnabled::QueryOnly); //type of collision - queryOnly - only run this collision when you run the events
+	collisionSphere->SetCollisionEnabled(ECollisionEnabled::NoCollision); //type of collision - queryOnly - only run this collision when you run the events
 	collisionSphere->OnComponentBeginOverlap.AddDynamic(this, &ACoinActor::OnOverlapBegin);
 
 	coinMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("PickUpMesh"));
