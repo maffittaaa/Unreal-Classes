@@ -56,6 +56,7 @@ void ACoinActor::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* Oth
 				AMyGameStateBase* myGameStateBase = Cast<AMyGameStateBase>(GetWorld()->GetGameState());
 				if (myGameStateBase != nullptr)
 					myGameStateBase->UpdateTotalCoinsInLevel();
+				
 			}
 		}
 	}

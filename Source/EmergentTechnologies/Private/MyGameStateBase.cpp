@@ -17,3 +17,7 @@ void AMyGameStateBase::UpdateTotalCoinsInLevel() {
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ACoinActor::StaticClass(), foundCoins);
 	totalLevelCoins = foundCoins.Num();
 }
+
+void AMyGameStateBase::MulticastOnLevelComplete_Implementation(APawn* character, bool succeeded) {
+	OnLevelCompleted(character, succeeded);
+}

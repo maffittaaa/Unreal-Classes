@@ -15,5 +15,10 @@ class EMERGENTTECHNOLOGIES_API AMyGameStateBase : public AGameStateBase
 
 		UPROPERTY(Replicated, BlueprintReadOnly)
 		int totalLevelCoins;
-	
+
+		UFUNCTION(NetMulticast, Reliable)
+		void MulticastOnLevelComplete(APawn* character, bool succeeded);
+
+		UFUNCTION(BlueprintImplementableEvent, Category = "Gameplay Events")
+		void OnLevelCompleted(APawn* character, bool succeeded);
 };
