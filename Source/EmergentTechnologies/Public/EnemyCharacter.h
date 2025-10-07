@@ -14,34 +14,50 @@ class EMERGENTTECHNOLOGIES_API AEnemyCharacter : public ACharacter
 {
 	GENERATED_BODY()
 
-public:
-	// Sets default values for this character's properties
-	AEnemyCharacter();
+	public:
+		// Sets default values for this character's properties
+		AEnemyCharacter();
 
-protected:
-	// Called when the game starts or when spawned
-	virtual void BeginPlay() override;
-	TArray<AActor*> waypoints;
-	AAIController* myAIController;
-	ATargetPoint* GetRandomWaypoint();
-	void AIMoveCompleted(FAIRequestID requestID, const FPathFollowingResult& result);
-	
-	UPROPERTY(VisibleAnywhere, Category = "Components")
-	class UAIPerceptionComponent* aiPerceptionComponent;
-	
-	UPROPERTY(VisibleAnywhere, Category = "Components")
-	class UAISenseConfig_Sight* sightConfig;
+	protected:
+		// Called when the game starts or when spawned
+		virtual void BeginPlay() override;
+		TArray<AActor*> waypoints;
+		AAIController* myAIController;
+		ATargetPoint* GetRandomWaypoint();
+		void AIMoveCompleted(FAIRequestID requestID, const FPathFollowingResult& result);
+		
+		UPROPERTY(VisibleAnywhere, Category = "Components")
+		class UAIPerceptionComponent* aiPerceptionComponent;
+		
+		UPROPERTY(VisibleAnywhere, Category = "Components")
+		class UAISenseConfig_Sight* sightConfig;
 
-	AActor* target;
-	
-	UFUNCTION()
-	void OnTargetPerceptionUpdated(AActor* Actor, FAIStimulus stimulus);
+		AActor* target;
+		
+		UFUNCTION()
+		void OnTargetPerceptionUpdated(AActor* Actor, FAIStimulus stimulus);
 
-public:	
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
+		//replicated properties for movement and animation
+		UPROPERTY(ReplicatedUsing = OnRep_CurrentSpeed)
+		float currentSpeed;
 
-	// Called to bind functionality to input
-	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+		UPROPERTY(ReplicatedUsing = OnRep_AnimationRate)
+		float animationRate;
 
+		UFUNCTION()
+		void OnRep_CurrentSpeed();
+
+		UFUNCTION()
+		void OnRep_AnimationRate();
+
+		void SetEnemySpeed(float newSpeed, float newAnimRate);
+		
+	public:	
+		// Called every frame
+		virtual void Tick(float DeltaTime) override;
+
+		// Called to bind functionality to input
+		virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+
+		virtual void GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const override;
 };

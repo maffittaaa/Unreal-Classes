@@ -7,6 +7,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/GameStateBase.h"
 #include "Kismet/GameplayStatics.h"
+#include "Net/UnrealNetwork.h"
 #include "Perception/AIPerceptionComponent.h"
 #include "Perception/AISenseConfig_Sight.h"
 
@@ -35,8 +36,8 @@ AEnemyCharacter::AEnemyCharacter() {
 	aiPerceptionComponent->ConfigureSense(*sightConfig);
 	aiPerceptionComponent->SetDominantSense(sightConfig->GetSenseImplementation());
 
-	this->GetMesh()->GlobalAnimRateScale = 1;
-	this->GetCharacterMovement()->MaxWalkSpeed = 100.0f;
+	this->GetMesh()->GlobalAnimRateScale = 2.0f;
+	this->GetCharacterMovement()->MaxWalkSpeed = 200.0f;
 
 	//Bind perception update event
 	aiPerceptionComponent->OnTargetPerceptionUpdated.AddDynamic(this, &AEnemyCharacter::OnTargetPerceptionUpdated);
@@ -97,8 +98,7 @@ void AEnemyCharacter::OnTargetPerceptionUpdated(AActor* Actor, FAIStimulus stimu
 		APawn* detectedPawn = Cast<APawn>(Actor);
 		if (detectedPawn && myAIController && !target) {
 			target = detectedPawn;
-			this->GetMesh()->GlobalAnimRateScale = 2.5f;
-			this->GetCharacterMovement()->MaxWalkSpeed = 225.0f;
+			SetEnemySpeed(150.0f, 3.0f);
 			myAIController->MoveToActor(detectedPawn);
 
 			UE_LOG(LogTemp, Display, TEXT("Enemy dectected player: %s"), *Actor->GetName());
@@ -106,8 +106,7 @@ void AEnemyCharacter::OnTargetPerceptionUpdated(AActor* Actor, FAIStimulus stimu
 	}
 	else {
 		if (Actor == target) {
-			this->GetMesh()->GlobalAnimRateScale = 1.0f;
-			this->GetCharacterMovement()->MaxWalkSpeed = 100.0f;
+			SetEnemySpeed(200.0f, 2.0f);
 			target = nullptr;
 			myAIController->MoveToActor(GetRandomWaypoint());
 
@@ -116,5 +115,36 @@ void AEnemyCharacter::OnTargetPerceptionUpdated(AActor* Actor, FAIStimulus stimu
 	}
 }
 
+void AEnemyCharacter::SetEnemySpeed(float newSpeed, float newAnimRate)
+{
+	if (HasAuthority()) {
+		currentSpeed = newSpeed;
+		animationRate = newAnimRate;
+
+		//update locally on server
+		OnRep_CurrentSpeed();
+		OnRep_AnimationRate();
+	}
+}
+
+void AEnemyCharacter::GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const {
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+	DOREPLIFETIME(AEnemyCharacter, currentSpeed);
+	DOREPLIFETIME(AEnemyCharacter, animationRate);
+}
+
+void AEnemyCharacter::OnRep_CurrentSpeed() {
+	if (GetCharacterMovement()) {
+		GetCharacterMovement()->MaxWalkSpeed = currentSpeed;
+		UE_LOG(LogTemp, Display, TEXT("Enemy speed updated to: %f"), currentSpeed);
+	}
+}
+
+void AEnemyCharacter::OnRep_AnimationRate() {
+	if (GetMesh()) {
+		GetMesh()->GlobalAnimRateScale = animationRate;
+		UE_LOG(LogTemp, Display, TEXT("Enemy animation rate updated to: %f"), animationRate);
+	}
+}
 
 

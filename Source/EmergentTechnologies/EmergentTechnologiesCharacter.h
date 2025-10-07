@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "Logging/LogMacros.h"
+#include "MyHealth.h"
 #include "EmergentTechnologiesCharacter.generated.h"
 
 class USpringArmComponent;
@@ -34,6 +35,9 @@ class AEmergentTechnologiesCharacter : public ACharacter
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Components", meta = (AllowPrivateAccess = "true"))
 	AUShooterComponent* ShooterComponent;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Health", meta = (AllowPrivateAccess = "true"))
+	AMyHealth* healthComponent;
 	
 protected:
 
@@ -58,6 +62,7 @@ public:
 	/** Constructor */
 	AEmergentTechnologiesCharacter();
 	void CollectCoin();
+	void BurnInLava(float burnDamage);
 
 protected:
 

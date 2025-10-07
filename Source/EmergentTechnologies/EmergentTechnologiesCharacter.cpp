@@ -1,6 +1,9 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 
 #include "EmergentTechnologiesCharacter.h"
+
+#include <iostream>
+
 #include "Engine/LocalPlayer.h"
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
@@ -12,7 +15,10 @@
 #include "InputActionValue.h"
 #include "EmergentTechnologies.h"
 #include "MyPlayerState.h"
+#include "MyHealth.h"
 #include "EmergentTechnologies/Public/UShooterComponent.h"
+
+using namespace std;
 
 AEmergentTechnologiesCharacter::AEmergentTechnologiesCharacter()
 {
@@ -28,14 +34,19 @@ AEmergentTechnologiesCharacter::AEmergentTechnologiesCharacter()
 	GetCharacterMovement()->bOrientRotationToMovement = true;
 	GetCharacterMovement()->RotationRate = FRotator(0.0f, 500.0f, 0.0f);
 
+	
+
 	// Note: For faster iteration times these variables, and many more, can be tweaked in the Character Blueprint
 	// instead of recompiling to adjust them
-	GetCharacterMovement()->JumpZVelocity = 100.f;
+	GetCharacterMovement()->JumpZVelocity = 400.0f;
 	GetCharacterMovement()->AirControl = 0.35f;
-	GetCharacterMovement()->MaxWalkSpeed = 250.f;
-	GetCharacterMovement()->MinAnalogWalkSpeed = 20.f;
-	GetCharacterMovement()->BrakingDecelerationWalking = 2000.f;
+	GetCharacterMovement()->MaxWalkSpeed = 500.0f;
+	// cout << "Movement: " <<  GetCharacterMovement()->MaxWalkSpeed << endl;
+	GetCharacterMovement()->MinAnalogWalkSpeed = 20.0f;
+	GetCharacterMovement()->BrakingDecelerationWalking = 2000.0f;
 	GetCharacterMovement()->BrakingDecelerationFalling = 1500.0f;
+	
+	healthComponent = CreateDefaultSubobject<AMyHealth>(TEXT("HealthComponent"));
 
 	// Create a camera boom (pulls in towards the player if there is a collision)
 	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
@@ -115,10 +126,15 @@ void AEmergentTechnologiesCharacter::DoMove(float Right, float Forward)
 	}
 }
 
-void AEmergentTechnologiesCharacter::CollectCoin()
-{
+void AEmergentTechnologiesCharacter::CollectCoin() {
 	if (AMyPlayerState* myPlayerState = Cast<AMyPlayerState>(GetPlayerState()))
 		myPlayerState->AddCoin();
+}
+
+void AEmergentTechnologiesCharacter::BurnInLava(float burnDamage) {
+	UE_LOG(LogTemp, Warning, TEXT("Current health: %f"), healthComponent->GetCurrentHealth());
+	if (healthComponent->GetCurrentHealth() >= 2.0f)
+		healthComponent->TakeDamageFromObject(burnDamage);
 }
 
 void AEmergentTechnologiesCharacter::DoLook(float Yaw, float Pitch)
