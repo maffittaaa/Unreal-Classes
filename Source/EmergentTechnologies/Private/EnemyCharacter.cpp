@@ -20,11 +20,11 @@ AEnemyCharacter::AEnemyCharacter() {
 
 	//Create and configure Sight Sense for AI perception
 	sightConfig = CreateDefaultSubobject<UAISenseConfig_Sight>(TEXT("SightConfig")); //create the sight sense config object
-	sightConfig->SightRadius = 1500; // Maximum distance at which the AI can see targets
-	sightConfig->LoseSightRadius = 1800; // Distance at which the AI loses sight of targets (hysteresis)
-	sightConfig->PeripheralVisionAngleDegrees = 90; // Field of view angle (degrees) for peripheral vision
+	sightConfig->SightRadius = 1500.0f; // Maximum distance at which the AI can see targets
+	sightConfig->LoseSightRadius = 1800.0f; // Distance at which the AI loses sight of targets (hysteresis)
+	sightConfig->PeripheralVisionAngleDegrees = 90.0f; // Field of view angle (degrees) for peripheral vision
 	sightConfig->SetMaxAge(5); // How long a stimulus is valid after being sensed (in seconds)
-	sightConfig->AutoSuccessRangeFromLastSeenLocation = 520; // Range within which AI will automatically succeed in snsing if target was recently seen
+	sightConfig->AutoSuccessRangeFromLastSeenLocation = 520.0f; // Range within which AI will automatically succeed in snsing if target was recently seen
 
 	//Configure which affiliations the AI can detect
 	sightConfig->DetectionByAffiliation.bDetectEnemies = true;
@@ -36,7 +36,7 @@ AEnemyCharacter::AEnemyCharacter() {
 	aiPerceptionComponent->SetDominantSense(sightConfig->GetSenseImplementation());
 
 	this->GetMesh()->GlobalAnimRateScale = 1;
-	this->GetCharacterMovement()->MaxWalkSpeed = 100;
+	this->GetCharacterMovement()->MaxWalkSpeed = 100.0f;
 
 	//Bind perception update event
 	aiPerceptionComponent->OnTargetPerceptionUpdated.AddDynamic(this, &AEnemyCharacter::OnTargetPerceptionUpdated);
@@ -97,8 +97,8 @@ void AEnemyCharacter::OnTargetPerceptionUpdated(AActor* Actor, FAIStimulus stimu
 		APawn* detectedPawn = Cast<APawn>(Actor);
 		if (detectedPawn && myAIController && !target) {
 			target = detectedPawn;
-			this->GetMesh()->GlobalAnimRateScale = 2.5;
-			this->GetCharacterMovement()->MaxWalkSpeed = 200;
+			this->GetMesh()->GlobalAnimRateScale = 2.5f;
+			this->GetCharacterMovement()->MaxWalkSpeed = 225.0f;
 			myAIController->MoveToActor(detectedPawn);
 
 			UE_LOG(LogTemp, Display, TEXT("Enemy dectected player: %s"), *Actor->GetName());
@@ -106,8 +106,8 @@ void AEnemyCharacter::OnTargetPerceptionUpdated(AActor* Actor, FAIStimulus stimu
 	}
 	else {
 		if (Actor == target) {
-			this->GetMesh()->GlobalAnimRateScale = 1;
-			this->GetCharacterMovement()->MaxWalkSpeed = 100;
+			this->GetMesh()->GlobalAnimRateScale = 1.0f;
+			this->GetCharacterMovement()->MaxWalkSpeed = 100.0f;
 			target = nullptr;
 			myAIController->MoveToActor(GetRandomWaypoint());
 
