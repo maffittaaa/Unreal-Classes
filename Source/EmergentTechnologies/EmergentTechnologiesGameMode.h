@@ -14,10 +14,20 @@ class AEmergentTechnologiesGameMode : public AGameModeBase
 {
 	GENERATED_BODY()
 
-public:
-	
-	/** Constructor */
-	AEmergentTechnologiesGameMode();
+	public:
+		AEmergentTechnologiesGameMode();
+
+		UFUNCTION()
+		void RespawnPlayer(AController* controller);
+
+	protected:
+		UPROPERTY(EditDefaultsOnly, Category = "Respawn")
+		float respawnDelay = 3.0f;
+
+		TMap<AController*, FTimerHandle> pendingRespawns;
+
+		UFUNCTION()
+		void RespawnPlayerInternal(AController* controller);
 };
 
 

@@ -1,46 +1,25 @@
 #include "EnemyCharacter.h"
 
 #include "EmergentTechnologiesCharacter.h"
+#include "EmergentTechnologiesGameMode.h"
+#include "EnemyAIController.h"
 #include "MyGameStateBase.h"
 #include "Navigation/PathFollowingComponent.h"
-#include "NavigationSystem.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/GameStateBase.h"
 #include "Kismet/GameplayStatics.h"
 #include "Net/UnrealNetwork.h"
-#include "Perception/AIPerceptionComponent.h"
-#include "Perception/AISenseConfig_Sight.h"
 
 // Sets default values
 AEnemyCharacter::AEnemyCharacter() {
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
-	//Create AI Perception Component
-	aiPerceptionComponent = CreateDefaultSubobject<UAIPerceptionComponent>(TEXT("AIPerceptionComponent"));
-
-	//Create and configure Sight Sense for AI perception
-	sightConfig = CreateDefaultSubobject<UAISenseConfig_Sight>(TEXT("SightConfig")); //create the sight sense config object
-	sightConfig->SightRadius = 1500.0f; // Maximum distance at which the AI can see targets
-	sightConfig->LoseSightRadius = 1800.0f; // Distance at which the AI loses sight of targets (hysteresis)
-	sightConfig->PeripheralVisionAngleDegrees = 90.0f; // Field of view angle (degrees) for peripheral vision
-	sightConfig->SetMaxAge(5); // How long a stimulus is valid after being sensed (in seconds)
-	sightConfig->AutoSuccessRangeFromLastSeenLocation = 520.0f; // Range within which AI will automatically succeed in snsing if target was recently seen
-
-	//Configure which affiliations the AI can detect
-	sightConfig->DetectionByAffiliation.bDetectEnemies = true;
-	sightConfig->DetectionByAffiliation.bDetectNeutrals = true;
-	sightConfig->DetectionByAffiliation.bDetectFriendlies = true;
-
-	//Add sight configuration to perception component
-	aiPerceptionComponent->ConfigureSense(*sightConfig);
-	aiPerceptionComponent->SetDominantSense(sightConfig->GetSenseImplementation());
+	AIControllerClass = AEnemyAIController::StaticClass();
+	AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
 
 	this->GetMesh()->GlobalAnimRateScale = 2.0f;
 	this->GetCharacterMovement()->MaxWalkSpeed = 200.0f;
-
-	//Bind perception update event
-	aiPerceptionComponent->OnTargetPerceptionUpdated.AddDynamic(this, &AEnemyCharacter::OnTargetPerceptionUpdated);
 }
 
 // Called when the game starts or when spawned
@@ -59,7 +38,6 @@ void AEnemyCharacter::BeginPlay() {
 // Called every frame
 void AEnemyCharacter::Tick(float DeltaTime) {
 	Super::Tick(DeltaTime);
-
 }
 
 // Called to bind functionality to input
@@ -75,14 +53,26 @@ ATargetPoint* AEnemyCharacter::GetRandomWaypoint() {
 
 void AEnemyCharacter::AIMoveCompleted(FAIRequestID requestID, const FPathFollowingResult& result)
 {
-	if (result.IsSuccess() && HasAuthority()) {
+	if (!HasAuthority())
+		return;
+	
+	if (result.IsSuccess()) {
 		if (target) {
 			AEmergentTechnologiesCharacter* character = Cast<AEmergentTechnologiesCharacter>(target);
-			AMyGameStateBase* myGameState = Cast<AMyGameStateBase>(GetWorld()->GetGameState());
 
-			if (character && myGameState)
-				myGameState->MulticastOnLevelComplete(character, false);
+			if (character) {
+				UE_LOG(LogTemp, Warning, TEXT("Enemy %s caught the player %s!"), *GetName(), *character->GetName());
+
+				if (AEmergentTechnologiesGameMode* myGameModeBase = Cast<AEmergentTechnologiesGameMode>(GetWorld()->GetAuthGameMode())) {
+					if (AController* playerController = character->GetController()) {
+						myGameModeBase->RespawnPlayer(playerController);
+						UE_LOG(LogTemp, Warning, TEXT("Triggered respawn for player %s"), *character->GetName());
+					}
+				}
+			}
+			
 			target = nullptr;
+			SetEnemySpeed(200.0f, 1.0f);
 		}
 		
 		if (waypoints.Num() > 0 && myAIController) {
@@ -98,7 +88,7 @@ void AEnemyCharacter::OnTargetPerceptionUpdated(AActor* Actor, FAIStimulus stimu
 		APawn* detectedPawn = Cast<APawn>(Actor);
 		if (detectedPawn && myAIController && !target) {
 			target = detectedPawn;
-			SetEnemySpeed(150.0f, 3.0f);
+			SetEnemySpeed(250.0f, 2.5f);
 			myAIController->MoveToActor(detectedPawn);
 
 			UE_LOG(LogTemp, Display, TEXT("Enemy dectected player: %s"), *Actor->GetName());
@@ -106,7 +96,7 @@ void AEnemyCharacter::OnTargetPerceptionUpdated(AActor* Actor, FAIStimulus stimu
 	}
 	else {
 		if (Actor == target) {
-			SetEnemySpeed(200.0f, 2.0f);
+			SetEnemySpeed(200.0f, 2.5f);
 			target = nullptr;
 			myAIController->MoveToActor(GetRandomWaypoint());
 

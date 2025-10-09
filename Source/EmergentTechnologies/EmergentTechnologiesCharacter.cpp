@@ -15,7 +15,7 @@
 #include "InputActionValue.h"
 #include "EmergentTechnologies.h"
 #include "MyPlayerState.h"
-#include "MyHealth.h"
+#include "MyHealthComponent.h"
 #include "EmergentTechnologies/Public/UShooterComponent.h"
 
 using namespace std;
@@ -46,7 +46,7 @@ AEmergentTechnologiesCharacter::AEmergentTechnologiesCharacter()
 	GetCharacterMovement()->BrakingDecelerationWalking = 2000.0f;
 	GetCharacterMovement()->BrakingDecelerationFalling = 1500.0f;
 	
-	healthComponent = CreateDefaultSubobject<AMyHealth>(TEXT("HealthComponent"));
+	healthComponent = CreateDefaultSubobject<UMyHealthComponent>(TEXT("HealthComponent"));
 
 	// Create a camera boom (pulls in towards the player if there is a collision)
 	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
@@ -131,7 +131,7 @@ void AEmergentTechnologiesCharacter::CollectCoin() {
 		myPlayerState->AddCoin();
 }
 
-void AEmergentTechnologiesCharacter::BurnInLava(float burnDamage) {
+void AEmergentTechnologiesCharacter::TakeDamageFromEntity(float burnDamage) {
 	UE_LOG(LogTemp, Warning, TEXT("Current health: %f"), healthComponent->GetCurrentHealth());
 	if (healthComponent->GetCurrentHealth() >= 2.0f)
 		healthComponent->TakeDamageFromObject(burnDamage);

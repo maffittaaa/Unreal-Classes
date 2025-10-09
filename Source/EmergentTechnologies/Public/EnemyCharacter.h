@@ -18,6 +18,9 @@ class EMERGENTTECHNOLOGIES_API AEnemyCharacter : public ACharacter
 		// Sets default values for this character's properties
 		AEnemyCharacter();
 
+		UFUNCTION()
+		void OnTargetPerceptionUpdated(AActor* Actor, FAIStimulus stimulus);
+
 	protected:
 		// Called when the game starts or when spawned
 		virtual void BeginPlay() override;
@@ -25,17 +28,8 @@ class EMERGENTTECHNOLOGIES_API AEnemyCharacter : public ACharacter
 		AAIController* myAIController;
 		ATargetPoint* GetRandomWaypoint();
 		void AIMoveCompleted(FAIRequestID requestID, const FPathFollowingResult& result);
-		
-		UPROPERTY(VisibleAnywhere, Category = "Components")
-		class UAIPerceptionComponent* aiPerceptionComponent;
-		
-		UPROPERTY(VisibleAnywhere, Category = "Components")
-		class UAISenseConfig_Sight* sightConfig;
 
 		AActor* target;
-		
-		UFUNCTION()
-		void OnTargetPerceptionUpdated(AActor* Actor, FAIStimulus stimulus);
 
 		//replicated properties for movement and animation
 		UPROPERTY(ReplicatedUsing = OnRep_CurrentSpeed)

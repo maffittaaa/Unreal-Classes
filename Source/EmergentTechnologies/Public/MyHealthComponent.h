@@ -3,17 +3,18 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameFramework/Actor.h"
-#include "MyHealth.generated.h"
+#include "Components/ActorComponent.h"
+#include "MyHealthComponent.generated.h"
 
-UCLASS()
-class EMERGENTTECHNOLOGIES_API AMyHealth : public AActor
+
+UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
+class EMERGENTTECHNOLOGIES_API UMyHealthComponent : public UActorComponent
 {
 	GENERATED_BODY()
-	
+
 public:	
-	// Sets default values for this actor's properties
-	AMyHealth();
+	// Sets default values for this component's properties
+	UMyHealthComponent();
 
 	UFUNCTION(BlueprintCallable, Category = "Health")
 	void InitializeHealth(float newMaxHealth);
@@ -46,6 +47,5 @@ protected:
 
 public:	
 	// Called every frame
-	virtual void Tick(float DeltaTime) override;
-
+	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 };

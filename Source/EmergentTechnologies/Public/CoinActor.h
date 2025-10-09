@@ -33,6 +33,9 @@ class EMERGENTTECHNOLOGIES_API ACoinActor : public AActor
 		UPROPERTY(EditDefaultsOnly, Category = "Effects")
 		UParticleSystem* collectEffects;
 
+		UPROPERTY(EditDefaultsOnly, Category = "Effects")
+		UParticleSystemComponent* effect;
+
 		UFUNCTION(NetMulticast, Reliable)
 		void PlayEffects();
 

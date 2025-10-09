@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "Components/BoxComponent.h"
 #include "GameFramework/Actor.h"
+#include "EmergentTechnologiesCharacter.h"
 #include "MyLavaFloor.generated.h"
 
 UCLASS()
@@ -25,8 +26,12 @@ class EMERGENTTECHNOLOGIES_API AMyLavaFloor : public AActor
 		UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 		UStaticMeshComponent* lavaFloorMesh;
 
-	//virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
-		
+		UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
+		FTimerHandle burnTimer;
+		FTimerDelegate burnDelegate;
+
+		UFUNCTION()
+		void BurnInLava(AEmergentTechnologiesCharacter* projectCharacter);
 
 	protected:
 		// Called when the game starts or when spawned
