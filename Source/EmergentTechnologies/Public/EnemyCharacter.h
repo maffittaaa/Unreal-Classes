@@ -5,12 +5,13 @@
 #include "CoreMinimal.h"
 #include "Engine/TargetPoint.h"
 #include "AIController.h"
+#include "MyInterface.h"
 #include "GameFramework/Character.h"
 #include "Perception/AIPerceptionTypes.h"
 #include "EnemyCharacter.generated.h"
 
 UCLASS()
-class EMERGENTTECHNOLOGIES_API AEnemyCharacter : public ACharacter
+class EMERGENTTECHNOLOGIES_API AEnemyCharacter : public ACharacter, public IMyInterface
 {
 	GENERATED_BODY()
 
@@ -20,6 +21,8 @@ class EMERGENTTECHNOLOGIES_API AEnemyCharacter : public ACharacter
 
 		UFUNCTION()
 		void OnTargetPerceptionUpdated(AActor* Actor, FAIStimulus stimulus);
+
+		// virtual void TakeDamageFromObject_Implementation(float damageAmount, AActor* damageCauser) override;
 
 	protected:
 		// Called when the game starts or when spawned

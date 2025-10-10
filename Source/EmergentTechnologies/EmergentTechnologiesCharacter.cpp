@@ -2,6 +2,7 @@
 
 #include "EmergentTechnologiesCharacter.h"
 
+#include <filesystem>
 #include <iostream>
 
 #include "Engine/LocalPlayer.h"
@@ -14,8 +15,11 @@
 #include "EnhancedInputSubsystems.h"
 #include "InputActionValue.h"
 #include "EmergentTechnologies.h"
+#include "EmergentTechnologiesGameMode.h"
 #include "MyPlayerState.h"
 #include "MyHealthComponent.h"
+#include "MyInterface.h"
+#include "MyInterface.h"
 #include "EmergentTechnologies/Public/UShooterComponent.h"
 
 using namespace std;
@@ -33,8 +37,6 @@ AEmergentTechnologiesCharacter::AEmergentTechnologiesCharacter()
 	// Configure character movement
 	GetCharacterMovement()->bOrientRotationToMovement = true;
 	GetCharacterMovement()->RotationRate = FRotator(0.0f, 500.0f, 0.0f);
-
-	
 
 	// Note: For faster iteration times these variables, and many more, can be tweaked in the Character Blueprint
 	// instead of recompiling to adjust them
@@ -88,6 +90,14 @@ void AEmergentTechnologiesCharacter::SetupPlayerInputComponent(UInputComponent* 
 	}
 }
 
+void AEmergentTechnologiesCharacter::BeginPlay() {
+	Super::BeginPlay();
+
+	healthComponent->OnDeath.AddDynamic(this, &AEmergentTechnologiesCharacter::RespawnPlayer());
+	
+	// healthComponent->OnHealthChanged.AddDynamic(this, &AEmergentTechnologiesCharacter::);
+}
+
 void AEmergentTechnologiesCharacter::Move(const FInputActionValue& Value)
 {
 	// input is a Vector2D
@@ -131,10 +141,19 @@ void AEmergentTechnologiesCharacter::CollectCoin() {
 		myPlayerState->AddCoin();
 }
 
-void AEmergentTechnologiesCharacter::TakeDamageFromEntity(float burnDamage) {
+void AEmergentTechnologiesCharacter:: TakeDamageFromObject_Implementation(float burnDamage, AActor* burnCauser) {
 	UE_LOG(LogTemp, Warning, TEXT("Current health: %f"), healthComponent->GetCurrentHealth());
 	if (healthComponent->GetCurrentHealth() >= 2.0f)
 		healthComponent->TakeDamageFromObject(burnDamage);
+}
+
+void AEmergentTechnologiesCharacter::RespawnPlayer() {
+	if (AEmergentTechnologiesGameMode* myGameModeBase = Cast<AEmergentTechnologiesGameMode>(GetWorld()->GetAuthGameMode())) {
+		if (AController* playerController = this->GetController()) {
+			myGameModeBase->RespawnPlayer(playerController);
+			UE_LOG(LogTemp, Warning, TEXT("Triggered respawn for player %s"), *this->GetName());
+		}
+	}	
 }
 
 void AEmergentTechnologiesCharacter::DoLook(float Yaw, float Pitch)

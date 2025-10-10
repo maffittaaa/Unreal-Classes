@@ -45,7 +45,7 @@ void AMyLavaFloor::Tick(float DeltaTime) {
 }
 
 void AMyLavaFloor::BurnInLava(AEmergentTechnologiesCharacter* projectCharacter) {
-	projectCharacter->TakeDamageFromEntity(2.0f);
+	projectCharacter->TakeDamageFromObject_Implementation(2.0f, this);
 }
 
 

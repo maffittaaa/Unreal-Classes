@@ -58,18 +58,9 @@ void AEnemyCharacter::AIMoveCompleted(FAIRequestID requestID, const FPathFollowi
 	
 	if (result.IsSuccess()) {
 		if (target) {
-			AEmergentTechnologiesCharacter* character = Cast<AEmergentTechnologiesCharacter>(target);
 
-			if (character) {
-				UE_LOG(LogTemp, Warning, TEXT("Enemy %s caught the player %s!"), *GetName(), *character->GetName());
-
-				if (AEmergentTechnologiesGameMode* myGameModeBase = Cast<AEmergentTechnologiesGameMode>(GetWorld()->GetAuthGameMode())) {
-					if (AController* playerController = character->GetController()) {
-						myGameModeBase->RespawnPlayer(playerController);
-						UE_LOG(LogTemp, Warning, TEXT("Triggered respawn for player %s"), *character->GetName());
-					}
-				}
-			}
+			if (target->GetClass()->ImplementsInterface(UMyInterface::StaticClass()))
+				IMyInterface::Execute_TakeDamageFromObject(target, 4.0f, this);
 			
 			target = nullptr;
 			SetEnemySpeed(200.0f, 1.0f);
