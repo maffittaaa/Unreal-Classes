@@ -55,5 +55,8 @@ void AMyLaser::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* Other
 
 void AMyLaser::Tick(float DeltaTime) {
 	Super::Tick(DeltaTime);
+
+	//niagaraLaser->SetVectorParameter(FName("LaserEnd"), );
+	
 }
 
