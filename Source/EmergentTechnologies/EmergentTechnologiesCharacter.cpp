@@ -93,9 +93,10 @@ void AEmergentTechnologiesCharacter::SetupPlayerInputComponent(UInputComponent* 
 void AEmergentTechnologiesCharacter::BeginPlay() {
 	Super::BeginPlay();
 
-	healthComponent->OnDeath.AddDynamic(this, &AEmergentTechnologiesCharacter::RespawnPlayer());
+	healthComponent->OnDeath.AddDynamic(this, &AEmergentTechnologiesCharacter::RespawnPlayer);
 	
-	// healthComponent->OnHealthChanged.AddDynamic(this, &AEmergentTechnologiesCharacter::);
+
+	//healthComponent->OnHealthChanged.AddDynamic(this, &AEmergentTechnologiesCharacter::);
 }
 
 void AEmergentTechnologiesCharacter::Move(const FInputActionValue& Value)
