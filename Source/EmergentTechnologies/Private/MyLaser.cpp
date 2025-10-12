@@ -3,6 +3,7 @@
 
 #include "MyLaser.h"
 #include "NiagaraComponent.h"
+#include "NiagaraSystem.h"
 #include "EmergentTechnologiesCharacter.h"
 #include "Components/SphereComponent.h"
 
@@ -15,48 +16,76 @@ AMyLaser::AMyLaser() {
 	collisionSphere->SetupAttachment(RootComponent);
 	collisionSphere->SetSphereRadius(100.0f);
 	collisionSphere->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	collisionSphere->OnComponentBeginOverlap.AddDynamic(this, &AMyLaser::OnOverlapBegin);
+
 
 	laserMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("PickUpMesh"));
 	laserMesh->SetupAttachment(RootComponent);
 	laserMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
-	niagaraLaser = CreateDefaultSubobject<UNiagaraComponent>(TEXT("NiagaraLaser"));
-	UNiagaraSystem* niagaraLaserAsset = LoadObject<UNiagaraSystem>(nullptr, TEXT("/Game/ThirdPerson/Blueprints/Lasers/NSLaser"));
-	niagaraLaser->SetAsset(niagaraLaserAsset, true);
+	niagaraLaser = CreateDefaultSubobject<UNiagaraComponent>(TEXT("NSLaser"));
 	niagaraLaser->SetupAttachment(RootComponent);
+	// niagaraLaser->SetColorParameter(FName("Colour"), FLinearColor(0.703f, 0.245f, 0.0f, 1.0f));
 
-	niagaraLaserImpact = CreateDefaultSubobject<UNiagaraComponent>(TEXT("NiagaraLaserImpact"));
-	UNiagaraSystem* niagaraLaserImpactAsset = LoadObject<UNiagaraSystem>(nullptr, TEXT("/Game/ThirdPerson/Blueprints/Lasers/NsLaserImpact"));
-	niagaraLaserImpact->SetAsset(niagaraLaserImpactAsset, true);
+	niagaraLaserImpact = CreateDefaultSubobject<UNiagaraComponent>(TEXT("NSLaserImpact"));
 	niagaraLaserImpact->SetupAttachment(RootComponent);
+	
+	// collisionSphere->OnComponentBeginOverlap.AddDynamic(this, &AMyLaser::OnOverlapBegin);
 }
 
 void AMyLaser::BeginPlay() {
 	Super::BeginPlay();
-	SetColorsForNiagaraLaser(niagaraLaser, niagaraLaserImpact, FColor(0.703f, 0.245f, 0.0f, 1.0f));
+	SetLaserColors();
 }
 
-void AMyLaser::SetColorsForNiagaraLaser(UNiagaraComponent* newNiagaraLaser, UNiagaraComponent* newNiagaraLaserImpact, FLinearColor colorToPass) {
-	if (newNiagaraLaser)
-		newNiagaraLaser->SetColorParameter(FName("Colour"), colorToPass);
+void AMyLaser::SetLaserColors() {
+	if (niagaraLaser)
+		niagaraLaser->SetVariableLinearColor(FName("User.BeamColor"), FLinearColor(0.703f, 0.245f, 0.0f, 1.0f));
 
-	if (newNiagaraLaserImpact)
-		newNiagaraLaserImpact->SetColorParameter(FName("Colour"), colorToPass);
+	if (niagaraLaserImpact)
+		niagaraLaserImpact->SetVariableLinearColor(FName("User.Colour"), FLinearColor(0.703f, 0.245f, 0.0f, 1.0f));
 }
 
-void AMyLaser::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult) {
-	if (AEmergentTechnologiesCharacter* projectCharacter = Cast<AEmergentTechnologiesCharacter>(OtherActor)) {
-		if (HasAuthority()) {
-			projectCharacter->CollectCoin();
-		}
-	}
-}
+// void AMyLaser::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult) {
+// 	if (AEmergentTechnologiesCharacter* projectCharacter = Cast<AEmergentTechnologiesCharacter>(OtherActor)) {
+// 		if (HasAuthority()) {
+// 			projectCharacter->CollectCoin();
+// 		}
+// 	}
+// }
 
 void AMyLaser::Tick(float DeltaTime) {
 	Super::Tick(DeltaTime);
-
-	//niagaraLaser->SetVectorParameter(FName("LaserEnd"), );
 	
+	UE_LOG(LogTemp, Warning, TEXT("AMyLaser::Tick - Executing laser logic"));
+	
+	float distance = 1100.0f;
+	FVector startTrace = GetActorLocation();
+	FVector endTrace = startTrace + (GetActorForwardVector() * distance);
+	ECollisionChannel traceChannel = ECC_Visibility;
+	
+	FCollisionQueryParams RV_TraceParams = FCollisionQueryParams(FName(TEXT("RV_Trace")), false, this);
+	RV_TraceParams.bTraceComplex = false;
+	RV_TraceParams.bReturnPhysicalMaterial = false;
+	RV_TraceParams.AddIgnoredActor(this);
+	
+	
+	FHitResult RV_Hit(ForceInit);
+	
+	GetWorld()->LineTraceSingleByChannel(
+		RV_Hit,
+		startTrace,
+		endTrace,
+		traceChannel,
+		RV_TraceParams
+	);
+
+	FVector param = RV_Hit.bBlockingHit ? RV_Hit.Location : endTrace; //select in blueprint
+	niagaraLaser->SetVariableVec3(FName("User.BeamEnd"), param);
+	
+	if (RV_Hit.bBlockingHit) {
+		niagaraLaserImpact->SetWorldLocation(RV_Hit.Location);
+		niagaraLaserImpact->SetActive(true);
+	} else
+		niagaraLaserImpact->SetActive(false);
 }
 

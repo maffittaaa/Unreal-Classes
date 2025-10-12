@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "Components/SphereComponent.h"
 #include "GameFramework/Actor.h"
+#include "NiagaraComponent.h"
 #include "NiagaraSystem.h"
 #include "MyLaser.generated.h"
 
@@ -15,21 +16,28 @@ class EMERGENTTECHNOLOGIES_API AMyLaser : public AActor
 	
 	public:	
 		// Sets default values for this actor's properties
-		UFUNCTION()
-		void OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+		// UFUNCTION()
+		// void OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 	
 		AMyLaser();
 
 		UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 		UStaticMeshComponent* laserMesh;
 
-		UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
+		UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 		UNiagaraComponent* niagaraLaser;
 
-		UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
+		UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 		UNiagaraComponent* niagaraLaserImpact;
+
+		UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
+		UNiagaraSystem* niagaraLaserSystem;
+
+		UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
+		UNiagaraSystem* niagaraLaserImpactSystem;
 	
-		void SetColorsForNiagaraLaser(UNiagaraComponent* newNiagaraLaser, UNiagaraComponent* newNiagaraLaserImpact, FLinearColor colorToPass);
+		UFUNCTION(BlueprintCallable, Category = "Laser")
+		void SetLaserColors();
 
 	protected: 
 		virtual void BeginPlay() override;
