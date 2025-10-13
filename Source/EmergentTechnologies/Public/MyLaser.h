@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Components/SphereComponent.h"
+#include "EmergentTechnologiesCharacter.h"
 #include "GameFramework/Actor.h"
 #include "NiagaraComponent.h"
 #include "NiagaraSystem.h"
@@ -15,10 +16,6 @@ class EMERGENTTECHNOLOGIES_API AMyLaser : public AActor
 	GENERATED_BODY()
 	
 	public:	
-		// Sets default values for this actor's properties
-		// UFUNCTION()
-		// void OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
-	
 		AMyLaser();
 
 		UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
@@ -38,6 +35,8 @@ class EMERGENTTECHNOLOGIES_API AMyLaser : public AActor
 	
 		UFUNCTION(BlueprintCallable, Category = "Laser")
 		void SetLaserColors();
+
+		void TouchingLaser(AEmergentTechnologiesCharacter* projectCharacter);
 
 	protected: 
 		virtual void BeginPlay() override;

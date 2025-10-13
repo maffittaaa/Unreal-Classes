@@ -1,6 +1,3 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
-
 #include "MyLaser.h"
 #include "NiagaraComponent.h"
 #include "NiagaraSystem.h"
@@ -16,20 +13,16 @@ AMyLaser::AMyLaser() {
 	collisionSphere->SetupAttachment(RootComponent);
 	collisionSphere->SetSphereRadius(100.0f);
 	collisionSphere->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-
-
+	
 	laserMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("PickUpMesh"));
 	laserMesh->SetupAttachment(RootComponent);
 	laserMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
 	niagaraLaser = CreateDefaultSubobject<UNiagaraComponent>(TEXT("NSLaser"));
 	niagaraLaser->SetupAttachment(RootComponent);
-	// niagaraLaser->SetColorParameter(FName("Colour"), FLinearColor(0.703f, 0.245f, 0.0f, 1.0f));
 
 	niagaraLaserImpact = CreateDefaultSubobject<UNiagaraComponent>(TEXT("NSLaserImpact"));
 	niagaraLaserImpact->SetupAttachment(RootComponent);
-	
-	// collisionSphere->OnComponentBeginOverlap.AddDynamic(this, &AMyLaser::OnOverlapBegin);
 }
 
 void AMyLaser::BeginPlay() {
@@ -45,18 +38,12 @@ void AMyLaser::SetLaserColors() {
 		niagaraLaserImpact->SetVariableLinearColor(FName("User.Colour"), FLinearColor(0.703f, 0.245f, 0.0f, 1.0f));
 }
 
-// void AMyLaser::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult) {
-// 	if (AEmergentTechnologiesCharacter* projectCharacter = Cast<AEmergentTechnologiesCharacter>(OtherActor)) {
-// 		if (HasAuthority()) {
-// 			projectCharacter->CollectCoin();
-// 		}
-// 	}
-// }
+void AMyLaser::TouchingLaser(AEmergentTechnologiesCharacter* projectCharacter) {
+	projectCharacter->TakeDamageFromObject_Implementation(5.0f, this);
+}
 
 void AMyLaser::Tick(float DeltaTime) {
 	Super::Tick(DeltaTime);
-	
-	UE_LOG(LogTemp, Warning, TEXT("AMyLaser::Tick - Executing laser logic"));
 	
 	float distance = 1100.0f;
 	FVector startTrace = GetActorLocation();
@@ -67,7 +54,6 @@ void AMyLaser::Tick(float DeltaTime) {
 	RV_TraceParams.bTraceComplex = false;
 	RV_TraceParams.bReturnPhysicalMaterial = false;
 	RV_TraceParams.AddIgnoredActor(this);
-	
 	
 	FHitResult RV_Hit(ForceInit);
 	
@@ -85,6 +71,12 @@ void AMyLaser::Tick(float DeltaTime) {
 	if (RV_Hit.bBlockingHit) {
 		niagaraLaserImpact->SetWorldLocation(RV_Hit.Location);
 		niagaraLaserImpact->SetActive(true);
+		
+		if (AEmergentTechnologiesCharacter* projectCharacter = Cast<AEmergentTechnologiesCharacter>(RV_Hit.GetActor())) {
+			UE_LOG(LogTemp, Warning, TEXT("I Hit something: %p "), RV_Hit.GetActor());
+			if (HasAuthority())
+				TouchingLaser(projectCharacter);
+		}
 	} else
 		niagaraLaserImpact->SetActive(false);
 }

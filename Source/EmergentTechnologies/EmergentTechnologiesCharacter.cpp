@@ -142,10 +142,10 @@ void AEmergentTechnologiesCharacter::CollectCoin() {
 		myPlayerState->AddCoin();
 }
 
-void AEmergentTechnologiesCharacter:: TakeDamageFromObject_Implementation(float burnDamage, AActor* burnCauser) {
+void AEmergentTechnologiesCharacter:: TakeDamageFromObject_Implementation(float damage, AActor* damageCauser) {
 	UE_LOG(LogTemp, Warning, TEXT("Current health: %f"), healthComponent->GetCurrentHealth());
 	if (healthComponent->GetCurrentHealth() >= 2.0f)
-		healthComponent->TakeDamageFromObject(burnDamage);
+		healthComponent->TakeDamageFromObject(damage);
 }
 
 void AEmergentTechnologiesCharacter::RespawnPlayer() {

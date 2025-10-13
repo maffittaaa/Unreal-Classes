@@ -63,7 +63,7 @@ class AEmergentTechnologiesCharacter : public ACharacter, public IMyInterface
 		UFUNCTION()
 		void RespawnPlayer();
 	
-		virtual void TakeDamageFromObject_Implementation(float burnDamage, AActor* burnCauser) override;
+		virtual void TakeDamageFromObject_Implementation(float damage, AActor* damageCauser) override;
 
 	protected:
 
