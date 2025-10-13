@@ -17,6 +17,8 @@ public class EmergentTechnologies : ModuleRules
 			"AIModule",
 			"StateTreeModule",
 			"GameplayStateTreeModule",
+			"Sockets",
+			"Networking",
 			"UMG",
 			"Slate", "Niagara"
 		});

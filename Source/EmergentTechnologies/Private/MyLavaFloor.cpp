@@ -13,17 +13,6 @@ AMyLavaFloor::AMyLavaFloor() {
 	
 	RootComponent = CreateDefaultSubobject<USceneComponent>(TEXT("RootComponent"));
 	
-	// collisionBox = CreateDefaultSubobject<UBoxComponent>("Box");
-	// collisionBox->SetupAttachment(RootComponent);
-	// FVector NewExtent(100.0f, 200.0f, 1.0f);
-	// collisionBox->SetBoxExtent(NewExtent, true);
-	// collisionBox->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	// collisionBox->SetCollisionResponseToAllChannels(ECR_Ignore);
-	// collisionBox->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);
-	//
-	// collisionBox->OnComponentBeginOverlap.AddDynamic(this, &AMyLavaFloor::OnOverlapBegin);
-	// collisionBox->OnComponentEndOverlap.AddDynamic(this, &AMyLavaFloor::OnOverlapEnd);
-	
 	lavaFloorMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("TouchMesh"));
 	lavaFloorMesh->SetupAttachment(RootComponent);
 	lavaFloorMesh->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
