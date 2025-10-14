@@ -43,7 +43,6 @@ AEmergentTechnologiesCharacter::AEmergentTechnologiesCharacter()
 	GetCharacterMovement()->JumpZVelocity = 400.0f;
 	GetCharacterMovement()->AirControl = 0.35f;
 	GetCharacterMovement()->MaxWalkSpeed = 500.0f;
-	// cout << "Movement: " <<  GetCharacterMovement()->MaxWalkSpeed << endl;
 	GetCharacterMovement()->MinAnalogWalkSpeed = 20.0f;
 	GetCharacterMovement()->BrakingDecelerationWalking = 2000.0f;
 	GetCharacterMovement()->BrakingDecelerationFalling = 1500.0f;
@@ -63,6 +62,7 @@ AEmergentTechnologiesCharacter::AEmergentTechnologiesCharacter()
 
 	//Create shooter component
 	ShooterComponent = CreateDefaultSubobject<AUShooterComponent>(TEXT("Shooter Component"));
+	
 
 	// Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character) 
 	// are set in the derived blueprint asset named ThirdPersonCharacter (to avoid direct content references in C++)
@@ -76,6 +76,9 @@ void AEmergentTechnologiesCharacter::SetupPlayerInputComponent(UInputComponent* 
 		// Jumping
 		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Started, this, &ACharacter::Jump);
 		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Completed, this, &ACharacter::StopJumping);
+
+		EnhancedInputComponent->BindAction(CrouchAction, ETriggerEvent::Triggered, this, &AEmergentTechnologiesCharacter::Duck);
+		EnhancedInputComponent->BindAction(CrouchAction, ETriggerEvent::Completed, this, &AEmergentTechnologiesCharacter::StopDuck);
 
 		// Moving
 		EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &AEmergentTechnologiesCharacter::Move);
@@ -137,26 +140,6 @@ void AEmergentTechnologiesCharacter::DoMove(float Right, float Forward)
 	}
 }
 
-void AEmergentTechnologiesCharacter::CollectCoin() {
-	if (AMyPlayerState* myPlayerState = Cast<AMyPlayerState>(GetPlayerState()))
-		myPlayerState->AddCoin();
-}
-
-void AEmergentTechnologiesCharacter:: TakeDamageFromObject_Implementation(float damage, AActor* damageCauser) {
-	UE_LOG(LogTemp, Warning, TEXT("Current health: %f"), healthComponent->GetCurrentHealth());
-	if (healthComponent->GetCurrentHealth() >= 2.0f)
-		healthComponent->TakeDamageFromObject(damage);
-}
-
-void AEmergentTechnologiesCharacter::RespawnPlayer() {
-	if (AEmergentTechnologiesGameMode* myGameModeBase = Cast<AEmergentTechnologiesGameMode>(GetWorld()->GetAuthGameMode())) {
-		if (AController* playerController = this->GetController()) {
-			myGameModeBase->RespawnPlayer(playerController);
-			UE_LOG(LogTemp, Warning, TEXT("Triggered respawn for player %s"), *this->GetName());
-		}
-	}	
-}
-
 void AEmergentTechnologiesCharacter::DoLook(float Yaw, float Pitch)
 {
 	if (GetController() != nullptr)
@@ -177,4 +160,34 @@ void AEmergentTechnologiesCharacter::DoJumpEnd()
 {
 	// signal the character to stop jumping
 	StopJumping();
+}
+
+void AEmergentTechnologiesCharacter::Duck() {
+	// signal the character to crouch
+	ACharacter::Crouch(false);	
+}
+
+void AEmergentTechnologiesCharacter::StopDuck() {
+	// signal the character to stop crouching
+	ACharacter::UnCrouch(false);	
+}
+
+void AEmergentTechnologiesCharacter::CollectCoin() {
+	if (AMyPlayerState* myPlayerState = Cast<AMyPlayerState>(GetPlayerState()))
+		myPlayerState->AddCoin();
+}
+
+void AEmergentTechnologiesCharacter:: TakeDamageFromObject_Implementation(float damage, AActor* damageCauser) {
+	UE_LOG(LogTemp, Warning, TEXT("Current health: %f"), healthComponent->GetCurrentHealth());
+	if (healthComponent->GetCurrentHealth() >= 2.0f)
+		healthComponent->TakeDamageFromObject(damage);
+}
+
+void AEmergentTechnologiesCharacter::RespawnPlayer() {
+	if (AEmergentTechnologiesGameMode* myGameModeBase = Cast<AEmergentTechnologiesGameMode>(GetWorld()->GetAuthGameMode())) {
+		if (AController* playerController = this->GetController()) {
+			myGameModeBase->RespawnPlayer(playerController);
+			UE_LOG(LogTemp, Warning, TEXT("Triggered respawn for player %s"), *this->GetName());
+		}
+	}	
 }

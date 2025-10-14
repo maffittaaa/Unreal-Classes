@@ -45,7 +45,10 @@ class AEmergentTechnologiesCharacter : public ACharacter, public IMyInterface
 		/** Move Input Action */
 		UPROPERTY(EditAnywhere, Category="Input")
 		UInputAction* MoveAction;
-
+	
+		UPROPERTY(EditAnywhere, Category="Input")
+		UInputAction* CrouchAction;
+		
 		/** Look Input Action */
 		UPROPERTY(EditAnywhere, Category="Input")
 		UInputAction* LookAction;
@@ -64,6 +67,9 @@ class AEmergentTechnologiesCharacter : public ACharacter, public IMyInterface
 		void RespawnPlayer();
 	
 		virtual void TakeDamageFromObject_Implementation(float damage, AActor* damageCauser) override;
+
+		void Duck();
+		void StopDuck();
 
 	protected:
 

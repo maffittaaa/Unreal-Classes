@@ -7,6 +7,9 @@
 AMyLaser::AMyLaser() {
 	PrimaryActorTick.bCanEverTick = true;
 
+	bReplicates = true;
+	bAlwaysRelevant = true;
+
 	RootComponent = CreateDefaultSubobject<USceneComponent>(TEXT("RootComponent"));
 	
 	collisionSphere = CreateDefaultSubobject<USphereComponent>("Sphere");
@@ -23,6 +26,7 @@ AMyLaser::AMyLaser() {
 
 	niagaraLaserImpact = CreateDefaultSubobject<UNiagaraComponent>(TEXT("NSLaserImpact"));
 	niagaraLaserImpact->SetupAttachment(RootComponent);
+	
 }
 
 void AMyLaser::BeginPlay() {
@@ -39,7 +43,7 @@ void AMyLaser::SetLaserColors() {
 }
 
 void AMyLaser::TouchingLaser(AEmergentTechnologiesCharacter* projectCharacter) {
-	projectCharacter->TakeDamageFromObject_Implementation(5.0f, this);
+	projectCharacter->TakeDamageFromObject_Implementation(2.0f, this);
 }
 
 void AMyLaser::Tick(float DeltaTime) {
@@ -48,16 +52,18 @@ void AMyLaser::Tick(float DeltaTime) {
 	float distance = 1100.0f;
 	FVector startTrace = GetActorLocation();
 	FVector endTrace = startTrace + (GetActorForwardVector() * distance);
-	ECollisionChannel traceChannel = ECC_Visibility;
+	ECollisionChannel traceChannel = ECC_WorldStatic;
+
+	// DrawDebugLine(GetWorld(), startTrace, endTrace, FColor::Red, false, -1.0f, 0, 1.0f);
 	
 	FCollisionQueryParams RV_TraceParams = FCollisionQueryParams(FName(TEXT("RV_Trace")), false, this);
 	RV_TraceParams.bTraceComplex = false;
 	RV_TraceParams.bReturnPhysicalMaterial = false;
 	RV_TraceParams.AddIgnoredActor(this);
 	
-	FHitResult RV_Hit(ForceInit);
+	FHitResult RV_Hit;
 	
-	GetWorld()->LineTraceSingleByChannel(
+	bool bHit = GetWorld()->LineTraceSingleByChannel(
 		RV_Hit,
 		startTrace,
 		endTrace,
@@ -65,19 +71,25 @@ void AMyLaser::Tick(float DeltaTime) {
 		RV_TraceParams
 	);
 
-	FVector param = RV_Hit.bBlockingHit ? RV_Hit.Location : endTrace; //select in blueprint
-	niagaraLaser->SetVariableVec3(FName("User.BeamEnd"), param);
+	FVector beamEnd = bHit ? RV_Hit.Location : endTrace; //select in blueprint
+	niagaraLaser->SetVariableVec3(FName("User.BeamEnd"), beamEnd);
 	
-	if (RV_Hit.bBlockingHit) {
-		niagaraLaserImpact->SetWorldLocation(RV_Hit.Location);
-		niagaraLaserImpact->SetActive(true);
+	if (bHit) {
+
+		if (niagaraLaserImpact)
+		{
+			niagaraLaserImpact->SetWorldLocation(RV_Hit.Location);
+			niagaraLaserImpact->SetActive(true);
+		}
 		
 		if (AEmergentTechnologiesCharacter* projectCharacter = Cast<AEmergentTechnologiesCharacter>(RV_Hit.GetActor())) {
-			UE_LOG(LogTemp, Warning, TEXT("I Hit something: %p "), RV_Hit.GetActor());
 			if (HasAuthority())
 				TouchingLaser(projectCharacter);
 		}
 	} else
-		niagaraLaserImpact->SetActive(false);
+	{
+		if (niagaraLaserImpact)
+			niagaraLaserImpact->SetActive(false);
+	}
 }
 

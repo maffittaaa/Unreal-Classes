@@ -15,7 +15,7 @@ class EMERGENTTECHNOLOGIES_API AMyLaser : public AActor
 {
 	GENERATED_BODY()
 	
-	public:	
+	public:
 		AMyLaser();
 
 		UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
@@ -37,6 +37,10 @@ class EMERGENTTECHNOLOGIES_API AMyLaser : public AActor
 		void SetLaserColors();
 
 		void TouchingLaser(AEmergentTechnologiesCharacter* projectCharacter);
+
+		UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
+		FTimerHandle damageTimer;
+		FTimerDelegate damageDelegate;
 
 	protected: 
 		virtual void BeginPlay() override;
