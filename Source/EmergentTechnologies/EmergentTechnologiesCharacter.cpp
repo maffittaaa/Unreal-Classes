@@ -77,15 +77,15 @@ void AEmergentTechnologiesCharacter::SetupPlayerInputComponent(UInputComponent* 
 		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Started, this, &ACharacter::Jump);
 		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Completed, this, &ACharacter::StopJumping);
 
-		EnhancedInputComponent->BindAction(CrouchAction, ETriggerEvent::Triggered, this, &AEmergentTechnologiesCharacter::Duck);
-		EnhancedInputComponent->BindAction(CrouchAction, ETriggerEvent::Completed, this, &AEmergentTechnologiesCharacter::StopDuck);
-
 		// Moving
 		EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &AEmergentTechnologiesCharacter::Move);
 		EnhancedInputComponent->BindAction(MouseLookAction, ETriggerEvent::Triggered, this, &AEmergentTechnologiesCharacter::Look);
 
 		// Looking
 		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &AEmergentTechnologiesCharacter::Look);
+		
+		EnhancedInputComponent->BindAction(CrouchAction, ETriggerEvent::Triggered, this, &AEmergentTechnologiesCharacter::Duck);
+		EnhancedInputComponent->BindAction(CrouchAction, ETriggerEvent::Completed, this, &AEmergentTechnologiesCharacter::StopDuck);
 	}
 	else
 	{
