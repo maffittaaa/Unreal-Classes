@@ -2,12 +2,11 @@
 
 
 #include "MyPressurePlate.h"
-
-#include "ACPreassuredDoor.h"
 #include "Components/StaticMeshComponent.h"
 #include "Components/BoxComponent.h"
 #include "Net/UnrealNetwork.h"
 #include "EmergentTechnologiesCharacter.h"
+#include "Kismet/GameplayStatics.h"
 
 AMyPressurePlate::AMyPressurePlate()
 {
@@ -38,13 +37,21 @@ AMyPressurePlate::AMyPressurePlate()
 
 	inactiveColor = FLinearColor(0.5f, 0.5f, 0.5f, 1.0f); // Gray
 	activeColor = FLinearColor(0.0f, 1.0f, 0.0f, 1.0f); // Green
-	
 }
 
-// Called when the game starts or when spawned
 void AMyPressurePlate::BeginPlay()
 {
 	Super::BeginPlay();
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AMyDoor::StaticClass(), FoundDoors);
+
+	for (AActor* DoorActor : FoundDoors) {
+		if (AMyDoor* MyDoor = Cast<AMyDoor>(DoorActor))
+		{
+			if (id == MyDoor->id)
+				door = MyDoor;
+			
+		}
+	};
 	
 	if (plateMesh && plateMesh->GetNumMaterials() > 0)
 		dynamicMaterialInstance = plateMesh->CreateDynamicMaterialInstance(0);
@@ -55,10 +62,8 @@ void AMyPressurePlate::BeginPlay()
 }
 
 // Called every frame
-void AMyPressurePlate::Tick(float DeltaTime)
-{
+void AMyPressurePlate::Tick(float DeltaTime) {
 	Super::Tick(DeltaTime);
-
 }
 
 void AMyPressurePlate::OnRep_IsActivated() {
@@ -77,6 +82,7 @@ void AMyPressurePlate::OnOverlapBegin(UPrimitiveComponent* overlappedComp, AActo
 			bIsActivated = true;
 			UE_LOG(LogTemp, Warning, TEXT("Pressure plate ACTIVATED!"));
 			UpdatePlateVisuals();
+			door->ActivateDoor();
 		}
 	}
 }
@@ -98,6 +104,7 @@ void AMyPressurePlate::OnOverlapEnd(UPrimitiveComponent* overlappedComp, AActor*
 		    bIsActivated = false;
 	    	UE_LOG(LogTemp, Warning, TEXT("Pressure plate DEACTIVATED!"));
 	    	UpdatePlateVisuals();
+	    	door->DeactivateDoor();
 	    }
     }
 }

@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "MyDoor.h"
 #include "MyPressurePlate.generated.h"
 
 
@@ -22,13 +23,21 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	class UBoxComponent* triggerBox;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Door")
+	class AMyDoor* door;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "PressurePlate")
+	int id;
+
+	UPROPERTY()
+	TArray<AActor*> FoundDoors;
+	
 	UPROPERTY(ReplicatedUsing=OnRep_IsActivated, VisibleAnywhere, BlueprintReadOnly, Category = "Puzzle")
 	bool bIsActivated;
 
 	UFUNCTION(BlueprintPure, Category = "Puzzle")
 	bool IsActivated() const {return bIsActivated;}
 
-	
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -52,10 +61,7 @@ protected:
 
 	UPROPERTY()
 	class UMaterialInstanceDynamic* dynamicMaterialInstance;
-
-
 	
-
 	int32 playersOnPlate;
 
 public:	

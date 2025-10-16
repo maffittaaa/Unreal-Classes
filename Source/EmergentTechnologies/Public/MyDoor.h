@@ -16,13 +16,21 @@ public:
 	AMyDoor();
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
-	class UStaticMeshComponent* doorMesh;
+	UStaticMeshComponent* doorMesh;
 
 	UPROPERTY(ReplicatedUsing=OnRep_IsActivated, VisibleAnywhere, BlueprintReadOnly, Category = "Puzzle")
-	bool bDoorActivated;
+	bool bIsActivated;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Door")
+	int id;
 
 	UFUNCTION(BlueprintPure, Category = "Puzzle")
-	bool IsActivated() const {return bDoorActivated;}
+	bool IsActivated() const {return bIsActivated;}
+
+	void ActivateDoor();
+	void DeactivateDoor();
+
+	void UpdateDoorVisuals();
 
 protected:
 	// Called when the game starts or when spawned
