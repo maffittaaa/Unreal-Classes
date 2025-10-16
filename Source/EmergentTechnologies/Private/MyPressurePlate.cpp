@@ -2,18 +2,20 @@
 
 
 #include "MyPressurePlate.h"
+
+#include "ACPreassuredDoor.h"
 #include "Components/StaticMeshComponent.h"
 #include "Components/BoxComponent.h"
 #include "Net/UnrealNetwork.h"
-#include "GameFramework/Character.h"
 #include "EmergentTechnologiesCharacter.h"
 
-// Sets default values
 AMyPressurePlate::AMyPressurePlate()
 {
 	PrimaryActorTick.bCanEverTick = true;
+	
 	bReplicates = true;
 	bAlwaysRelevant = true;
+	
 	RootComponent = CreateDefaultSubobject<USceneComponent>(TEXT("RootComponent"));
 
 	plateMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("PlateMesh"));
@@ -36,6 +38,7 @@ AMyPressurePlate::AMyPressurePlate()
 
 	inactiveColor = FLinearColor(0.5f, 0.5f, 0.5f, 1.0f); // Gray
 	activeColor = FLinearColor(0.0f, 1.0f, 0.0f, 1.0f); // Green
+	
 }
 
 // Called when the game starts or when spawned
@@ -60,8 +63,6 @@ void AMyPressurePlate::Tick(float DeltaTime)
 
 void AMyPressurePlate::OnRep_IsActivated() {
 	UpdatePlateVisuals();
-
-	//All visual feedback should go here so it's synchronized across all clients
 }
 
 void AMyPressurePlate::OnOverlapBegin(UPrimitiveComponent* overlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult) {

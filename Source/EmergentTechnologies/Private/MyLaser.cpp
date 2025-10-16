@@ -49,7 +49,7 @@ void AMyLaser::TouchingLaser(AEmergentTechnologiesCharacter* projectCharacter) {
 void AMyLaser::Tick(float DeltaTime) {
 	Super::Tick(DeltaTime);
 	
-	float distance = 1100.0f;
+	float distance = 2100.0f;
 	FVector startTrace = GetActorLocation();
 	FVector endTrace = startTrace + (GetActorForwardVector() * distance);
 	ECollisionChannel traceChannel = ECC_WorldStatic;

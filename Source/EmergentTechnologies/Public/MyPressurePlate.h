@@ -6,6 +6,7 @@
 #include "GameFramework/Actor.h"
 #include "MyPressurePlate.generated.h"
 
+
 UCLASS()
 class EMERGENTTECHNOLOGIES_API AMyPressurePlate : public AActor
 {
@@ -27,6 +28,7 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Puzzle")
 	bool IsActivated() const {return bIsActivated;}
 
+	
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -50,6 +52,9 @@ protected:
 
 	UPROPERTY()
 	class UMaterialInstanceDynamic* dynamicMaterialInstance;
+
+
+	
 
 	int32 playersOnPlate;
 
