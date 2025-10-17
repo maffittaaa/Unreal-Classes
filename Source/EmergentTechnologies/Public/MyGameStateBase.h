@@ -12,9 +12,13 @@ class EMERGENTTECHNOLOGIES_API AMyGameStateBase : public AGameStateBase
 	public:
 		AMyGameStateBase();
 		void UpdateTotalCoinsInLevel();
+		void UpdateTotalDoorsActivated();
 
 		UPROPERTY(Replicated, BlueprintReadOnly)
 		int totalLevelCoins;
+
+		UPROPERTY(Replicated, BlueprintReadOnly)
+		int totalMiniGameDoorsActivated;
 
 		UFUNCTION(NetMulticast, Reliable)
 		void MulticastOnLevelComplete(APawn* character, bool succeeded);

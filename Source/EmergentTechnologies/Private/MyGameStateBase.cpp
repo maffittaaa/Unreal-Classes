@@ -10,11 +10,13 @@ AMyGameStateBase::AMyGameStateBase() {
 	
 	PressurePlates.Empty();
 	UpdateTotalCoinsInLevel();
+	UpdateTotalDoorsActivated();
 }
 
 void AMyGameStateBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 	DOREPLIFETIME(AMyGameStateBase, totalLevelCoins);
+	DOREPLIFETIME(AMyGameStateBase, totalMiniGameDoorsActivated);
 	DOREPLIFETIME(AMyGameStateBase, bPuzzleCompleted);
 }
 
@@ -22,6 +24,12 @@ void AMyGameStateBase::UpdateTotalCoinsInLevel() {
 	TArray<AActor*> foundCoins;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ACoinActor::StaticClass(), foundCoins);
 	totalLevelCoins = foundCoins.Num();
+}
+
+void AMyGameStateBase::UpdateTotalDoorsActivated() {
+	TArray<AActor*> doorsActivated;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AMyDoor::StaticClass(), doorsActivated);
+	totalLevelCoins = doorsActivated.Num();
 }
 
 void AMyGameStateBase::MulticastOnLevelComplete_Implementation(APawn* character, bool succeeded) {
