@@ -3,6 +3,8 @@
 
 #include "MyPhysicsBox.h"
 
+#include "MyPressurePlate.h"
+
 // Sets default values
 AMyPhysicsBox::AMyPhysicsBox()
 {
@@ -33,7 +35,17 @@ AMyPhysicsBox::AMyPhysicsBox()
 void AMyPhysicsBox::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
+	// Only simulate physics on the server (authority)
+	if (HasAuthority()) {
+		meshComponent->SetSimulatePhysics(true);
+		UE_LOG(LogTemp, Log, TEXT("PhysicsReplicatedActor %s: Physics enabled on SERVER"), *GetName());
+	}
+	else {
+		// On clients, disable physics simulation - just receive replicated transforms
+		meshComponent->SetSimulatePhysics(false);
+		UE_LOG(LogTemp, Log, TEXT("PhysicsReplicatedActor %s: Physics DISABLED on CLIENT (receiving replication)"), *GetName());
+	}
 }
 
 // Called every frame

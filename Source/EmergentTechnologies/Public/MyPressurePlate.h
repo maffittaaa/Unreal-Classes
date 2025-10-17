@@ -18,13 +18,13 @@ public:
 	AMyPressurePlate();
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
-	class UStaticMeshComponent* plateMesh;
+	UStaticMeshComponent* plateMesh;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	class UBoxComponent* triggerBox;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Door")
-	class AMyDoor* door;
+	AMyDoor* door;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "PressurePlate")
 	int id;
@@ -62,7 +62,7 @@ protected:
 	UPROPERTY()
 	class UMaterialInstanceDynamic* dynamicMaterialInstance;
 	
-	int32 playersOnPlate;
+	int32 actorOnPlate;
 
 public:	
 	// Called every frame

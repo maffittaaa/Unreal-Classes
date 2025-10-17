@@ -6,6 +6,7 @@
 #include "Components/BoxComponent.h"
 #include "Net/UnrealNetwork.h"
 #include "EmergentTechnologiesCharacter.h"
+#include "MyPhysicsBox.h"
 #include "Kismet/GameplayStatics.h"
 
 AMyPressurePlate::AMyPressurePlate()
@@ -26,13 +27,13 @@ AMyPressurePlate::AMyPressurePlate()
 	triggerBox->SetBoxExtent(FVector(100.0f, 100.0f, 50.0f));
 	triggerBox->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 	triggerBox->SetCollisionResponseToAllChannels(ECR_Ignore);
-	triggerBox->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);
+	triggerBox->SetCollisionResponseToChannel(ECC_WorldDynamic, ECR_Overlap);
 
 	triggerBox->OnComponentBeginOverlap.AddDynamic(this, &AMyPressurePlate::OnOverlapBegin);
 	triggerBox->OnComponentEndOverlap.AddDynamic(this, &AMyPressurePlate::OnOverlapEnd);
 
 	bIsActivated = false;
-	playersOnPlate = 0;
+	actorOnPlate = 0;
 	dynamicMaterialInstance = nullptr;
 
 	inactiveColor = FLinearColor(0.5f, 0.5f, 0.5f, 1.0f); // Gray
@@ -45,11 +46,9 @@ void AMyPressurePlate::BeginPlay()
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AMyDoor::StaticClass(), FoundDoors);
 
 	for (AActor* DoorActor : FoundDoors) {
-		if (AMyDoor* MyDoor = Cast<AMyDoor>(DoorActor))
-		{
+		if (AMyDoor* MyDoor = Cast<AMyDoor>(DoorActor)) {
 			if (id == MyDoor->id)
 				door = MyDoor;
-			
 		}
 	};
 	
@@ -74,11 +73,11 @@ void AMyPressurePlate::OnOverlapBegin(UPrimitiveComponent* overlappedComp, AActo
 
 	if (!HasAuthority())
 		return;
-	if (AEmergentTechnologiesCharacter* projectCharacter = Cast<AEmergentTechnologiesCharacter>(OtherActor)) {
-		playersOnPlate++;
-		UE_LOG(LogTemp, Log, TEXT("Player stepped on pressure plate. Players on plate: %d"), playersOnPlate);
+	if (AActor* actor = Cast<AActor>(OtherActor)) {
+		actorOnPlate++;
+		UE_LOG(LogTemp, Log, TEXT("Actor stepped on pressure plate. Players on plate: %d"), actorOnPlate);
 
-		if (playersOnPlate > 0 && !bIsActivated) {
+		if (actorOnPlate > 0 && !bIsActivated) {
 			bIsActivated = true;
 			UE_LOG(LogTemp, Warning, TEXT("Pressure plate ACTIVATED!"));
 			UpdatePlateVisuals();
@@ -92,15 +91,15 @@ void AMyPressurePlate::OnOverlapEnd(UPrimitiveComponent* overlappedComp, AActor*
     if (!HasAuthority())
 		return;
 	
-    if (AEmergentTechnologiesCharacter* projectCharacter = Cast<AEmergentTechnologiesCharacter>(OtherActor)) {
-	    playersOnPlate--;
+    if (AActor* actor = Cast<AActor>(OtherActor)) {
+	    actorOnPlate--;
     	
-	    if (playersOnPlate < 0)
-	    	playersOnPlate = 0;
+	    if (actorOnPlate < 0)
+	    	actorOnPlate = 0;
     	
-	    UE_LOG(LogTemp, Log, TEXT("Player left pressure plate. Players on plate: %d"), playersOnPlate);
+	    UE_LOG(LogTemp, Log, TEXT("Player left pressure plate. Players on plate: %d"), actorOnPlate);
 	    
-	    if (playersOnPlate == 0 && bIsActivated) {
+	    if (actorOnPlate == 0 && bIsActivated) {
 		    bIsActivated = false;
 	    	UE_LOG(LogTemp, Warning, TEXT("Pressure plate DEACTIVATED!"));
 	    	UpdatePlateVisuals();
@@ -118,7 +117,7 @@ void AMyPressurePlate::UpdatePlateVisuals()
 
     if (plateMesh) {
 	    FVector CurrentLocation = plateMesh->GetRelativeLocation();
-	    float TargetZ = bIsActivated ? -10.0f : 0.0f; // Press down when activated
+	    float TargetZ = bIsActivated ? -15.0f : 0.0f; // Press down when activated
 	    plateMesh->SetRelativeLocation(FVector(CurrentLocation.X, CurrentLocation.Y, TargetZ));
     }
 }
@@ -127,7 +126,6 @@ void AMyPressurePlate::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 	DOREPLIFETIME(AMyPressurePlate, bIsActivated);
-
 }
 
 

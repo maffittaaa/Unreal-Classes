@@ -21,6 +21,8 @@ public:
 	UPROPERTY(ReplicatedUsing=OnRep_IsActivated, VisibleAnywhere, BlueprintReadOnly, Category = "Puzzle")
 	bool bIsActivated;
 
+	static int32 numberOfDoorsActivated;
+
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Door")
 	int id;
 
@@ -30,7 +32,10 @@ public:
 	void ActivateDoor();
 	void DeactivateDoor();
 
-	void UpdateDoorVisuals();
+	void UpdateInitialDoorVisuals();
+	void UpdateFinalDoorVisuals();
+
+	TArray<AActor*> doors;
 
 protected:
 	// Called when the game starts or when spawned
