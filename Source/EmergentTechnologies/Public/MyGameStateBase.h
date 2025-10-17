@@ -14,11 +14,16 @@ class EMERGENTTECHNOLOGIES_API AMyGameStateBase : public AGameStateBase
 		void UpdateTotalCoinsInLevel();
 		void UpdateTotalDoorsActivated();
 
+		void AddDoorsActivatedWidget(); 
+
+		UPROPERTY(EditAnywhere, Category = "Components")
+		TSubclassOf<UUserWidget> TotalDoorsDeactivated;
+
 		UPROPERTY(Replicated, BlueprintReadOnly)
 		int totalLevelCoins;
 
 		UPROPERTY(Replicated, BlueprintReadOnly)
-		int totalMiniGameDoorsActivated;
+		int totalMiniGameDoorsDeactivated;
 
 		UFUNCTION(NetMulticast, Reliable)
 		void MulticastOnLevelComplete(APawn* character, bool succeeded);

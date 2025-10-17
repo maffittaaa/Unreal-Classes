@@ -15,7 +15,6 @@ ADoorsMinigame::ADoorsMinigame() {
 	boxComponent->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);
 	boxComponent->SetupAttachment(GetRootComponent());
 	boxComponent->OnComponentBeginOverlap.AddDynamic(this, &ADoorsMinigame::OnOverlapBegin);
-
 }
 
 void ADoorsMinigame::BeginPlay() {
@@ -24,16 +23,12 @@ void ADoorsMinigame::BeginPlay() {
 
 void ADoorsMinigame::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	if (HasAuthority()) {
+	if (!HasAuthority()) {
 		AEmergentTechnologiesCharacter* projectCharacter = Cast<AEmergentTechnologiesCharacter>(OtherActor);
 		if (projectCharacter != nullptr) {
 			AMyGameStateBase *myGameState = Cast<AMyGameStateBase>(GetWorld()->GetGameState());
 			if (myGameState != nullptr) {
-				if (totalDoorsActivated) {
-					UUserWidget* HUDWidget = CreateWidget<UUserWidget>(this, totalDoorsActivated);
-					if (HUDWidget)
-						HUDWidget->AddToViewport();
-				}
+				myGameState->AddDoorsActivatedWidget();
 			}
 		}
 	}

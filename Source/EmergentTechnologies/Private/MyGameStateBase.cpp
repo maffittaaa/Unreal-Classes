@@ -1,6 +1,7 @@
 #include "MyGameStateBase.h"
 #include "CoinActor.h"
 #include "MyPressurePlate.h"
+#include "Blueprint/UserWidget.h"
 #include "Kismet/GameplayStatics.h"
 #include "Net/UnrealNetwork.h"
 
@@ -16,7 +17,7 @@ AMyGameStateBase::AMyGameStateBase() {
 void AMyGameStateBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 	DOREPLIFETIME(AMyGameStateBase, totalLevelCoins);
-	DOREPLIFETIME(AMyGameStateBase, totalMiniGameDoorsActivated);
+	DOREPLIFETIME(AMyGameStateBase, totalMiniGameDoorsDeactivated);
 	DOREPLIFETIME(AMyGameStateBase, bPuzzleCompleted);
 }
 
@@ -28,8 +29,22 @@ void AMyGameStateBase::UpdateTotalCoinsInLevel() {
 
 void AMyGameStateBase::UpdateTotalDoorsActivated() {
 	TArray<AActor*> doorsActivated;
+	totalMiniGameDoorsDeactivated = 0;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AMyDoor::StaticClass(), doorsActivated);
-	totalLevelCoins = doorsActivated.Num();
+	for (AActor* door : doorsActivated) {
+		if (AMyDoor* projectDoor = Cast<AMyDoor>(door)) {
+			if (!projectDoor->bIsActivated)
+				totalMiniGameDoorsDeactivated++;
+		}
+	}
+}
+
+void AMyGameStateBase::AddDoorsActivatedWidget() {
+	if (TotalDoorsDeactivated) {
+		UUserWidget* HUDWidget = CreateWidget<UUserWidget>(GetWorld(), TotalDoorsDeactivated, FName("HUD"));
+		if (HUDWidget)
+			HUDWidget->AddToViewport();
+	}
 }
 
 void AMyGameStateBase::MulticastOnLevelComplete_Implementation(APawn* character, bool succeeded) {

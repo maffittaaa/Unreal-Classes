@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "MyGameStateBase.h"
 #include "MyDoor.generated.h"
 
 UCLASS()
@@ -21,10 +22,11 @@ public:
 	UPROPERTY(ReplicatedUsing=OnRep_IsActivated, VisibleAnywhere, BlueprintReadOnly, Category = "Puzzle")
 	bool bIsActivated;
 
-	static int32 numberOfDoorsActivated;
-
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Door")
 	int id;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "GameState")
+	AMyGameStateBase* myGameState;
 
 	UFUNCTION(BlueprintPure, Category = "Puzzle")
 	bool IsActivated() const {return bIsActivated;}
