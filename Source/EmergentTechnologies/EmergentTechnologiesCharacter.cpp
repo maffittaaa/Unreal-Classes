@@ -20,6 +20,7 @@
 #include "MyHealthComponent.h"
 #include "MyInterface.h"
 #include "MyInterface.h"
+#include "Blueprint/UserWidget.h"
 #include "EmergentTechnologies/Public/UShooterComponent.h"
 
 using namespace std;
@@ -62,6 +63,8 @@ AEmergentTechnologiesCharacter::AEmergentTechnologiesCharacter()
 
 	//Create shooter component
 	ShooterComponent = CreateDefaultSubobject<AUShooterComponent>(TEXT("Shooter Component"));
+
+	
 	
 
 	// Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character) 
@@ -97,10 +100,44 @@ void AEmergentTechnologiesCharacter::BeginPlay() {
 	Super::BeginPlay();
 
 	healthComponent->OnDeath.AddDynamic(this, &AEmergentTechnologiesCharacter::RespawnPlayer);
-	
 
-	//healthComponent->OnHealthChanged.AddDynamic(this, &AEmergentTechnologiesCharacter::);
+	UE_LOG(LogTemp, Warning, TEXT("WidgetClass: %p"), *widgetClass);
+	if (widgetClass)
+		HUDWidget = CreateWidget<UUserWidget>(GetWorld(), widgetClass, FName("HUD"));
 }
+
+void AEmergentTechnologiesCharacter::AddAndRemoveWidget() {
+	float distance = 150.0f;
+	FVector startTrace = GetActorLocation();
+	FVector endTrace = startTrace + (GetActorForwardVector() * distance);
+
+	ECollisionChannel traceChannel = ECC_Visibility;
+	FCollisionQueryParams RV_TraceParams = FCollisionQueryParams(FName(TEXT("RV_Trace")), false, this);
+	RV_TraceParams.bTraceComplex = false;
+	RV_TraceParams.bReturnPhysicalMaterial = false;
+	RV_TraceParams.AddIgnoredActor(this);
+
+	DrawDebugLine(GetWorld(), startTrace, endTrace, FColor::Red, false, -1.0f, 0, 1.0f);
+	
+	FHitResult RV_Hit;
+
+	bool bHit = GetWorld()->LineTraceSingleByChannel(
+		RV_Hit,
+		startTrace,
+		endTrace,
+		traceChannel,
+		RV_TraceParams
+	);
+
+	UPrimitiveComponent* hitComponent = RV_Hit.GetComponent();
+	if (bHit && hitComponent->ComponentHasTag(FName("CanInteract")) && !HUDWidget->IsInViewport())
+		HUDWidget->AddToViewport();
+	else if (!bHit || !hitComponent->ComponentHasTag(FName("CanInteract")))
+		HUDWidget->RemoveFromParent();
+
+	UE_LOG(LogTemp, Warning, TEXT("ADDANDREMOVEWIDGET"));
+}
+
 
 void AEmergentTechnologiesCharacter::Move(const FInputActionValue& Value)
 {
@@ -190,4 +227,10 @@ void AEmergentTechnologiesCharacter::RespawnPlayer() {
 			UE_LOG(LogTemp, Warning, TEXT("Triggered respawn for player %s"), *this->GetName());
 		}
 	}	
+}
+
+void AEmergentTechnologiesCharacter::Tick(float DeltaTime) {
+	Super::Tick(DeltaTime);
+	if (widgetClass)
+		AddAndRemoveWidget();
 }

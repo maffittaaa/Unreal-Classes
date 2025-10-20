@@ -21,7 +21,7 @@ UCLASS(abstract)
 class AEmergentTechnologiesCharacter : public ACharacter, public IMyInterface
 {
 	GENERATED_BODY()
-
+	
 	/** Camera boom positioning the camera behind the character */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Components", meta = (AllowPrivateAccess = "true"))
 	USpringArmComponent* CameraBoom;
@@ -35,6 +35,14 @@ class AEmergentTechnologiesCharacter : public ACharacter, public IMyInterface
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Health", meta = (AllowPrivateAccess = "true"))
 	UMyHealthComponent* healthComponent;
+
+	UPROPERTY()
+	UUserWidget* HUDWidget;
+
+	UPROPERTY(EditAnywhere, Category = "Components")
+	TSubclassOf<UUserWidget> widgetClass;
+
+	FTimerHandle timerHandle;
 	
 	protected:
 
@@ -57,6 +65,9 @@ class AEmergentTechnologiesCharacter : public ACharacter, public IMyInterface
 		UPROPERTY(EditAnywhere, Category="Input")
 		UInputAction* MouseLookAction;
 
+		bool bWidgetIsVisible = false;
+		bool bCanToggleWidget = false;
+
 	public:
 
 		/** Constructor */
@@ -70,6 +81,13 @@ class AEmergentTechnologiesCharacter : public ACharacter, public IMyInterface
 
 		void Duck();
 		void StopDuck();
+
+		UFUNCTION(BlueprintCallable, Category="Widget")
+		void AddAndRemoveWidget();
+
+		// Called every frame
+		virtual void Tick(float DeltaTime) override;
+
 
 	protected:
 
@@ -110,5 +128,7 @@ class AEmergentTechnologiesCharacter : public ACharacter, public IMyInterface
 
 		/** Returns FollowCamera subobject **/
 		FORCEINLINE class UCameraComponent* GetFollowCamera() const { return FollowCamera; }
+
+	
 };
 

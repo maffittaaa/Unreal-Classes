@@ -67,11 +67,3 @@ void AMyLavaFloor::OnOverlapEnd(UPrimitiveComponent* overlappedComp, AActor* Oth
 		UE_LOG(LogTemp, Warning, TEXT("No more damage taken!"));
 	}
 }
-
-// void AMyLavaFloor::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
-// {
-// 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
-// 	// Register bIsActivated for replication with RepNotify
-// 	DOREPLIFETIME(AMyLavaFloor);
-// }
-
