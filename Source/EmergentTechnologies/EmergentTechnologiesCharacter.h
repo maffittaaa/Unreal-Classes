@@ -65,6 +65,9 @@ class AEmergentTechnologiesCharacter : public ACharacter, public IMyInterface
 		UPROPERTY(EditAnywhere, Category="Input")
 		UInputAction* MouseLookAction;
 
+		UPROPERTY(EditAnywhere, Category="Input")
+		UInputAction* InteractAction;
+
 		bool bWidgetIsVisible = false;
 		bool bCanToggleWidget = false;
 
@@ -81,6 +84,9 @@ class AEmergentTechnologiesCharacter : public ACharacter, public IMyInterface
 
 		void Duck();
 		void StopDuck();
+
+		void Interact();
+		void StopInteract();
 
 		UFUNCTION(BlueprintCallable, Category="Widget")
 		void AddAndRemoveWidget();

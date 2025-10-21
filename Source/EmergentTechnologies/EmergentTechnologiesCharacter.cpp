@@ -18,8 +18,6 @@
 #include "EmergentTechnologiesGameMode.h"
 #include "MyPlayerState.h"
 #include "MyHealthComponent.h"
-#include "MyInterface.h"
-#include "MyInterface.h"
 #include "Blueprint/UserWidget.h"
 #include "EmergentTechnologies/Public/UShooterComponent.h"
 
@@ -89,11 +87,12 @@ void AEmergentTechnologiesCharacter::SetupPlayerInputComponent(UInputComponent* 
 		
 		EnhancedInputComponent->BindAction(CrouchAction, ETriggerEvent::Triggered, this, &AEmergentTechnologiesCharacter::Duck);
 		EnhancedInputComponent->BindAction(CrouchAction, ETriggerEvent::Completed, this, &AEmergentTechnologiesCharacter::StopDuck);
+
+		EnhancedInputComponent->BindAction(InteractAction, ETriggerEvent::Started, this, &AEmergentTechnologiesCharacter::Interact);
+		EnhancedInputComponent->BindAction(InteractAction, ETriggerEvent::Completed, this, &AEmergentTechnologiesCharacter::StopInteract);
 	}
 	else
-	{
 		UE_LOG(LogEmergentTechnologies, Error, TEXT("'%s' Failed to find an Enhanced Input component! This template is built to use the Enhanced Input system. If you intend to use the legacy system, then you will need to update this C++ file."), *GetNameSafe(this));
-	}
 }
 
 void AEmergentTechnologiesCharacter::BeginPlay() {
@@ -117,7 +116,7 @@ void AEmergentTechnologiesCharacter::AddAndRemoveWidget() {
 	RV_TraceParams.bReturnPhysicalMaterial = false;
 	RV_TraceParams.AddIgnoredActor(this);
 
-	DrawDebugLine(GetWorld(), startTrace, endTrace, FColor::Red, false, -1.0f, 0, 1.0f);
+	// DrawDebugLine(GetWorld(), startTrace, endTrace, FColor::Red, false, -1.0f, 0, 1.0f);
 	
 	FHitResult RV_Hit;
 
@@ -134,8 +133,6 @@ void AEmergentTechnologiesCharacter::AddAndRemoveWidget() {
 		HUDWidget->AddToViewport();
 	else if (!bHit || !hitComponent->ComponentHasTag(FName("CanInteract")))
 		HUDWidget->RemoveFromParent();
-
-	UE_LOG(LogTemp, Warning, TEXT("ADDANDREMOVEWIDGET"));
 }
 
 
@@ -206,7 +203,16 @@ void AEmergentTechnologiesCharacter::Duck() {
 
 void AEmergentTechnologiesCharacter::StopDuck() {
 	// signal the character to stop crouching
-	ACharacter::UnCrouch(false);	
+	ACharacter::UnCrouch(false);
+}
+
+void AEmergentTechnologiesCharacter::Interact() {
+	UE_LOG(LogTemp, Display, TEXT("Interacting"));
+}
+
+
+void AEmergentTechnologiesCharacter::StopInteract() {
+	UE_LOG(LogTemp, Display, TEXT("Stopped Interacting"));
 }
 
 void AEmergentTechnologiesCharacter::CollectCoin() {
